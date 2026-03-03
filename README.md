@@ -2,10 +2,6 @@
 
 A real-time sign language recognition system using machine learning and computer vision.
 
-## Overview
-
-SanketSetu is an intelligent sign language interpretation system that provides real-time recognition and translation of sign language gestures using advanced machine learning models and MediaPipe hand tracking.
-
 ## Project Structure
 
 ```
