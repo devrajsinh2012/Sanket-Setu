@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* ── Custom CSS variables ──────────────────────────────────────── */
+:root {
+  --color-neon: #00f5d4;
+  --color-accent: #9b5de5;
+  --color-warn: #fee440;
+  --color-danger: #f15bb5;
+  --color-bg: #050816;
+  --color-surface: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(255, 255, 255, 0.12);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: #e2e8f0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Glassmorphism utility ─────────────────────────────────────── */
+.glass {
+  background: var(--color-surface);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+/* ── Neon glow text ────────────────────────────────────────────── */
+.glow-text {
+  text-shadow:
+    0 0 8px var(--color-neon),
+    0 0 20px var(--color-neon),
+    0 0 40px rgba(0, 245, 212, 0.4);
+}
+
+/* ── Neon glow border ──────────────────────────────────────────── */
+.glow-border {
+  box-shadow:
+    0 0 10px rgba(0, 245, 212, 0.3),
+    inset 0 0 10px rgba(0, 245, 212, 0.05);
+  border-color: rgba(0, 245, 212, 0.5) !important;
+}
+
+/* ── Animated gradient background ────────────────────────────── */
+.bg-animated {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(155, 93, 229, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 245, 212, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(241, 91, 181, 0.08) 0%, transparent 50%),
+    #050816;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(0, 245, 212, 0.3); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 245, 212, 0.6); }

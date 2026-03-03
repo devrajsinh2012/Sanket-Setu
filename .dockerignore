@@ -1,0 +1,29 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+dist/
+
+# ── Node / Frontend ───────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+# ── Git / Editor ──────────────────────────────────────────────────────────────
+.git/
+.gitignore
+.vscode/
+*.md
+TASKS.md
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Model binary variants (keep only .pkl, not duplicate .pth) ───────────────
+# Both extensions are identical — Docker only needs .pkl
+**/*.pth
