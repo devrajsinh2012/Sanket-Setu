@@ -5,8 +5,8 @@
 **Real-time Gujarati Sign Language Recognition System**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://sanket-setu.vercel.app)
-[![Backend](https://img.shields.io/badge/Backend-HuggingFace%20Spaces-yellow?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/devrajsinh2012/Sanket-Setu)
-[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge)](#license)
+[![Backend](https://img.shields.io/badge/Backend-HuggingFace%20Spaces-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/spaces/devrajsinh2012/Sanket-Setu)
+
 
 </div>
 
@@ -261,8 +261,4 @@ This project was developed by:
 
 > We express our sincere gratitude to **Dr. Om Prakash Suthar** for his invaluable guidance, encouragement, and technical insights throughout the development of SanketSetu. His mentorship was instrumental in shaping both the research direction and the system architecture of this project.
 
----
 
-## 📄 License
-
-© 2026 Devrajsinh Gohil & Jay Nasit. All Rights Reserved.
