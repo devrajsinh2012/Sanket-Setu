@@ -1,6 +1,6 @@
----
+﻿---
 title: SanketSetu Backend
-emoji: 🤟
+emoji: ≡ƒñƒ
 colorFrom: blue
 colorTo: purple
 sdk: docker
@@ -20,19 +20,19 @@ SanketSetu is an intelligent sign language interpretation system that provides r
 ## Project Structure
 
 ```
-├── backend/              # FastAPI backend server
-│   ├── app/             # Main application code
-│   │   ├── inference/   # ML inference pipelines
-│   │   └── models/      # Model loading and management
-│   └── tests/           # Backend tests
-├── frontend/            # React + TypeScript frontend
-│   └── src/
-│       ├── components/  # React components
-│       ├── hooks/       # Custom React hooks
-│       └── lib/         # Utility libraries
-├── CNN_Autoencoder_LightGBM/  # CNN Autoencoder + LightGBM model
-├── CNN_PreTrained/              # CNN + SVM model
-└── Mediapipe_XGBoost/          # MediaPipe + XGBoost model
+Γö£ΓöÇΓöÇ backend/              # FastAPI backend server
+Γöé   Γö£ΓöÇΓöÇ app/             # Main application code
+Γöé   Γöé   Γö£ΓöÇΓöÇ inference/   # ML inference pipelines
+Γöé   Γöé   ΓööΓöÇΓöÇ models/      # Model loading and management
+Γöé   ΓööΓöÇΓöÇ tests/           # Backend tests
+Γö£ΓöÇΓöÇ frontend/            # React + TypeScript frontend
+Γöé   ΓööΓöÇΓöÇ src/
+Γöé       Γö£ΓöÇΓöÇ components/  # React components
+Γöé       Γö£ΓöÇΓöÇ hooks/       # Custom React hooks
+Γöé       ΓööΓöÇΓöÇ lib/         # Utility libraries
+Γö£ΓöÇΓöÇ CNN_Autoencoder_LightGBM/  # CNN Autoencoder + LightGBM model
+Γö£ΓöÇΓöÇ CNN_PreTrained/              # CNN + SVM model
+ΓööΓöÇΓöÇ Mediapipe_XGBoost/          # MediaPipe + XGBoost model
 ```
 
 ## Features
@@ -94,7 +94,7 @@ Run the development servers:
 
 ## Deployment
 
-### Backend — Hugging Face Spaces (Docker SDK)
+### Backend ΓÇö Hugging Face Spaces (Docker SDK)
 
 The backend is deployed as a [Hugging Face Space](https://huggingface.co/spaces) using the Docker SDK.
 
@@ -114,25 +114,25 @@ The backend is deployed as a [Hugging Face Space](https://huggingface.co/spaces)
    ```
    HF Spaces will automatically build the Docker image and start the container.
 
-3. **Set Space Secrets** (via HF Space → Settings → Repository secrets):
+3. **Set Space Secrets** (via HF Space ΓåÆ Settings ΓåÆ Repository secrets):
    | Secret | Example value |
    |--------|---------------|
    | `CORS_ORIGINS` | `https://sanketsetu.vercel.app,http://localhost:5173` |
    | `PIPELINE_MODE` | `ensemble` |
    | `CONFIDENCE_THRESHOLD` | `0.70` |
 
-4. **Update the frontend** — set the `VITE_WS_URL` Vercel environment variable:
+4. **Update the frontend** ΓÇö set the `VITE_WS_URL` Vercel environment variable:
    ```
    wss://devrajsinh2012-sanket-setu.hf.space
    ```
-   In Vercel dashboard: **Settings → Environment Variables → VITE_WS_URL**
+   In Vercel dashboard: **Settings ΓåÆ Environment Variables ΓåÆ VITE_WS_URL**
 
 **Space URL format:**
 - HTTPS API: `https://devrajsinh2012-sanket-setu.hf.space`
 - WebSocket:  `wss://devrajsinh2012-sanket-setu.hf.space/ws/landmarks`
 - Health:     `https://devrajsinh2012-sanket-setu.hf.space/health`
 
-### Frontend — Vercel
+### Frontend ΓÇö Vercel
 
 ```bash
 cd frontend
