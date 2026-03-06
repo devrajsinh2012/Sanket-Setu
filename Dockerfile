@@ -29,7 +29,9 @@ COPY CNN_Autoencoder_LightGBM/ /models/CNN_Autoencoder_LightGBM/
 COPY CNN_PreTrained/           /models/CNN_PreTrained/
 
 # ── Runtime environment ───────────────────────────────────────────────────────
+# PORT=7860 is the Hugging Face Spaces default; override with -e PORT=xxxx if needed.
 ENV WEIGHTS_DIR=/models \
+    PORT=7860 \
     KERAS_BACKEND=tensorflow \
     TF_CPP_MIN_LOG_LEVEL=3 \
     CUDA_VISIBLE_DEVICES="" \
@@ -38,11 +40,11 @@ ENV WEIGHTS_DIR=/models \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-EXPOSE 8000
+EXPOSE 7860
 
 # ── Health-check ──────────────────────────────────────────────────────────────
 # Wait up to 3 minutes for models to load before marking the container healthy.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=180s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT}/health', timeout=5)"
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}

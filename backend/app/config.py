@@ -55,7 +55,14 @@ MAX_WS_CONNECTIONS: int = int(os.getenv("MAX_WS_CONNECTIONS", "100"))
 WS_SEND_RATE_LIMIT: int = int(os.getenv("WS_SEND_RATE_LIMIT", "15"))  # max frames/sec per client
 
 # Allowed CORS origins (comma-separated list in env var)
-_cors_env = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
+# Default includes Vercel frontend and the Hugging Face Space URL.
+# Replace YOUR_HF_USERNAME and YOUR_SPACE_NAME with your actual HF values.
+_cors_env = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://localhost:3000,"
+    "https://sanketsetu.vercel.app,"
+    "https://devrajsinh2012-sanket-setu.hf.space",
+)
 CORS_ORIGINS: list[str] = [o.strip() for o in _cors_env.split(",") if o.strip()]
 
 # ---------------------------------------------------------------------------
