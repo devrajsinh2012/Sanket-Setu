@@ -1,6 +1,6 @@
 ﻿---
 title: SanketSetu Backend
-emoji: ≡ƒñƒ
+emoji: 🤟
 colorFrom: blue
 colorTo: purple
 sdk: docker
