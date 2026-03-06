@@ -1,13 +1,3 @@
-﻿---
-title: SanketSetu Backend
-emoji: 🤟
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
-short_description: Real-time Gujarati Sign Language recognition API
----
 
 # SanketSetu
 
