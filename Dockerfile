@@ -1,11 +1,23 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# SanketSetu Backend — Dockerfile
+# SanketSetu — Dockerfile (full-stack: React frontend + FastAPI backend)
 # Build context: repo root (SanketSetu/)
 #
-#   docker build -t sanketsetu-backend .
-#   docker run -p 8000:8000 sanketsetu-backend
+#   docker build -t sanketsetu .
+#   docker run -p 7860:7860 sanketsetu
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ── Stage 1: Build React frontend ────────────────────────────────────────────
+FROM node:20-slim AS frontend-builder
+
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json* ./
+RUN npm ci --prefer-offline
+
+COPY frontend/ ./
+# No VITE_WS_URL — the hook derives it from window.location at runtime
+RUN npm run build
+
+# ── Stage 2: Python backend ───────────────────────────────────────────────────
 FROM python:3.12-slim AS base
 
 # System libraries needed by OpenCV headless + Pillow
@@ -20,6 +32,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # ── Application source ────────────────────────────────────────────────────────
 COPY backend/app/ ./app/
+
+# ── Frontend static files (built in Stage 1) ─────────────────────────────────
+COPY --from=frontend-builder /frontend/dist ./static/
 
 # ── Model artefacts ───────────────────────────────────────────────────────────
 # Copied to /models so the container is fully self-contained.

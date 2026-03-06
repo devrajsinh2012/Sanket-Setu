@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { PredictionResponse } from '../types';
 
-const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8080';
+// Derive WebSocket base URL from the current page origin so the hook works
+// on any deployment (HF Space, Vercel + backend, localhost) without extra config.
+function _defaultWsUrl(): string {
+  if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL as string;
+  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  return `${proto}://${window.location.host}`;
+}
+const WS_URL = _defaultWsUrl();
 const RECONNECT_BASE_MS    = 1000;
 const MAX_RECONNECT_MS     = 30_000;
 const MAX_SEND_RATE        = 15; // frames/sec — normal

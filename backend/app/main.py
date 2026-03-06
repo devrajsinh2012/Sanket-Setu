@@ -31,7 +31,8 @@ except ImportError:
 import numpy as np
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app import config
 from app.models.loader import load_models, get_model_store
@@ -91,6 +92,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Serve React frontend static files (if built into /app/static) ────────────
+_STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+if _STATIC_DIR.is_dir():
+    app.mount("/assets", StaticFiles(directory=str(_STATIC_DIR / "assets")), name="assets")
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +160,18 @@ def _available_pipelines() -> list[str]:
 # ---------------------------------------------------------------------------
 # REST endpoints
 # ---------------------------------------------------------------------------
+
+@app.get("/", include_in_schema=False)
+@app.get("/index.html", include_in_schema=False)
+async def serve_frontend():
+    """Serve the React SPA index for the root and any unknown path."""
+    index = _STATIC_DIR / "index.html"
+    if index.is_file():
+        return FileResponse(str(index), media_type="text/html")
+    # Fallback: redirect to API docs if frontend not bundled
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/docs")
+
 
 @app.get("/health", response_model=HealthResponse)
 async def health():
@@ -278,3 +296,16 @@ async def ws_image(ws: WebSocket):
 
     except WebSocketDisconnect:
         logger.info("Image client disconnected: %s", session_id)
+
+
+# ---------------------------------------------------------------------------
+# SPA catch-all — must be LAST so it doesn't shadow API routes
+# ---------------------------------------------------------------------------
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa(full_path: str):
+    """Return index.html for any unknown path so React Router handles routing."""
+    index = _STATIC_DIR / "index.html"
+    if index.is_file():
+        return FileResponse(str(index), media_type="text/html")
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/docs")
