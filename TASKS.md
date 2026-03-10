@@ -40,7 +40,7 @@ SanketSetu/
 │   ├── weights/                ← Symlink or copy of model pkl files
 │   ├── requirements.txt
 │   ├── Dockerfile
-│   └── fly.toml
+
 │
 ├── frontend/                   ← Vite + React + TS
 │   ├── src/
@@ -217,24 +217,15 @@ SanketSetu/
 - [x] Add `.dockerignore` (excludes `.venv`, `node_modules`, `*.pth`, tests)
 - [ ] Test locally: `docker build -t sanketsetu-backend . && docker run -p 8000:8000 sanketsetu-backend`
 
-### 3.2 Fly.io Configuration
-- [x] Create `fly.toml` (repo root, region=maa, port 8000, shared-cpu-2x)
+### 3.2 Hugging Face Spaces Configuration
+- [x] Create Hugging Face Spaces repository for backend deployment
 - [x] Note: Keras/TF will increase Docker image size — use `tensorflow-cpu` to keep slim
-- [ ] Set secrets via `flyctl secrets set` for any API keys
-- [ ] Run: `flyctl deploy --dockerfile Dockerfile`
+- [ ] Push Docker image to Hugging Face Container Registry
 
 ### 3.3 Vercel Frontend Deployment
 - [x] Create `frontend/vercel.json` with SPA rewrite + WASM Content-Type header
 - [x] Add `VITE_WS_URL` and `VITE_API_URL` to Vercel environment variables (via CI vars)
 - [ ] Ensure `@mediapipe/tasks-vision` WASM files are served correctly (add to `public/`)
-
-### 3.4 GitHub Actions CI/CD
-- [x] Create `.github/workflows/deploy-backend.yml`
-  - Triggers on push to `main` when `backend/**` changes
-  - Steps: checkout → setup Python → run tests → `flyctl deploy`
-- [x] Create `.github/workflows/deploy-frontend.yml`
-  - Triggers on push to `main` when `frontend/**` changes
-  - Steps: checkout → `npm ci` → tsc → `npm run build` → Vercel CLI deploy
 
 ---
 

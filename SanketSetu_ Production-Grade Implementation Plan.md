@@ -11,9 +11,9 @@ The system follows a modern microservices-inspired pattern to ensure scalability
 | Component | Technology | Role | Hosting (Free Tier) |
 | :--- | :--- | :--- | :--- |
 | **Frontend** | React + Vite + TS | User interface, webcam capture, real-time feedback | **Vercel** |
-| **Backend API** | FastAPI (Python) | WebSocket management, API gateway, logic | **Fly.io** |
-| **Inference Engine** | ONNX Runtime / XGBoost | High-speed model execution | **Fly.io** (Internal) |
-| **Storage** | Cloudflare R2 | S3-compatible storage for model weights | **Cloudflare** |
+| **Backend API** | FastAPI (Python) | WebSocket management, API gateway, logic | **Hugging Face Spaces** |
+| **Inference Engine** | ONNX Runtime / XGBoost | High-speed model execution | **Hugging Face Spaces** |
+| **Storage** | Hugging Face Model Hub | Model weights and assets | **Hugging Face** |
 | **Real-time** | WebSockets (WSS) | Low-latency frame-by-frame data transfer | N/A |
 
 ---
@@ -58,16 +58,12 @@ The frontend is designed to be "cool," responsive, and highly interactive, provi
 
 ## 4. Deployment & DevOps
 
-### 4.1 Continuous Integration/Deployment (CI/CD)
-Using **GitHub Actions**, the project will follow a strict deployment pipeline:
-1.  **Lint & Test**: Ensure code quality and run unit tests for ML logic.
-2.  **Build**: Create optimized production builds for the React app and Dockerize the FastAPI backend.
-3.  **Deploy**: 
-    *   Frontend automatically pushes to **Vercel**.
-    *   Backend pushes to **Fly.io** using `flyctl`.
+### 4.1 Deployment Strategy
+1.  **Frontend**: Manually push to **Vercel** using Vercel CLI or GitHub integration (when needed).
+2.  **Backend**: Manually deploy to **Hugging Face Spaces** using Git push or Hugging Face Hub CLI.
 
 ### 4.2 Scalability & Cost Management
-*   **Scale-to-Zero**: The backend on Fly.io can be configured to sleep when not in use to preserve free-tier resources.
+*   **Auto-scaling**: Hugging Face Spaces manages resource allocation automatically with free-tier CPU instances.
 *   **CDN Caching**: Vercel's Edge Network will cache all static assets, ensuring fast load times globally.
 
 ---
@@ -95,5 +91,5 @@ Using **GitHub Actions**, the project will follow a strict deployment pipeline:
 [1] [FastAPI Documentation](https://fastapi.tiangolo.com/) - High-performance web framework for building APIs.
 [2] [MediaPipe Hands](https://developers.google.com/mediapipe/solutions/vision/hand_landmarker) - Real-time hand landmark detection.
 [3] [Framer Motion](https://www.framer.com/motion/) - A production-ready motion library for React.
-[4] [Fly.io Free Tier](https://fly.io/docs/about/pricing/) - Details on free-tier resource allocation.
+[4] [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces) - Free-tier hosting for ML applications.
 [5] [Vercel Deployment](https://vercel.com/docs/deployments/overview) - Global CDN and hosting for frontend applications.
