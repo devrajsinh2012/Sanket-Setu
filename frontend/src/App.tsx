@@ -21,7 +21,11 @@ function App() {
   const [stage, setStage] = useState<AppStage>(showOnboarding ? 'onboarding' : 'model-select')
   const savedModel = localStorage.getItem('sanketsetu-model-mode') as ModelMode | null
   const [selectedModel, setSelectedModel] = useState<ModelMode>(savedModel ?? 'ensemble')
-  const [availableModes, setAvailableModes] = useState<Set<ModelMode>>(new Set(['ensemble']))
+  // Default all modes to available so the selector is usable even before the
+  // health check completes or if the backend is temporarily unreachable.
+  const [availableModes, setAvailableModes] = useState<Set<ModelMode>>(
+    new Set<ModelMode>(['ensemble', 'A', 'B', 'C'])
+  )
 
   const handleOnboardingDone = () => {
     localStorage.setItem('sanketsetu-onboarded', '1')
@@ -44,13 +48,17 @@ function App() {
         const data = (await res.json()) as { pipelines_available?: string[] }
         if (!active) return
 
-        const next = new Set<ModelMode>(['ensemble'])
-        for (const mode of data.pipelines_available ?? []) {
-          if (mode === 'A' || mode === 'B' || mode === 'C') {
-            next.add(mode)
+        // Only restrict availability when the backend explicitly reports which
+        // pipelines are loaded. If the list is empty (still loading) keep all
+        // modes selectable so the user isn't blocked.
+        const reported = data.pipelines_available ?? []
+        if (reported.length > 0) {
+          const next = new Set<ModelMode>(['ensemble'])
+          for (const mode of reported) {
+            if (mode === 'A' || mode === 'B' || mode === 'C') next.add(mode as ModelMode)
           }
+          setAvailableModes(next)
         }
-        setAvailableModes(next)
       } catch {
         // Keep local defaults when backend health is unavailable.
       }
