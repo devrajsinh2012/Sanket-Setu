@@ -47,14 +47,30 @@ export function useMediaPipe(): MediaPipeState {
     (async () => {
       try {
         const vision = await FilesetResolver.forVisionTasks(WASM_URL);
-        const hl = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' },
-          runningMode: 'VIDEO',
-          numHands: 1,
-          minHandDetectionConfidence: 0.5,
-          minHandPresenceConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
+
+        // Try GPU first for best performance; fall back to CPU if unavailable.
+        let hl: HandLandmarker | null = null;
+        try {
+          hl = await HandLandmarker.createFromOptions(vision, {
+            baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' },
+            runningMode: 'VIDEO',
+            numHands: 1,
+            minHandDetectionConfidence: 0.4,
+            minHandPresenceConfidence: 0.4,
+            minTrackingConfidence: 0.4,
+          });
+        } catch {
+          console.warn('GPU delegate unavailable, falling back to CPU.');
+          hl = await HandLandmarker.createFromOptions(vision, {
+            baseOptions: { modelAssetPath: MODEL_URL, delegate: 'CPU' },
+            runningMode: 'VIDEO',
+            numHands: 1,
+            minHandDetectionConfidence: 0.4,
+            minHandPresenceConfidence: 0.4,
+            minTrackingConfidence: 0.4,
+          });
+        }
+
         if (!cancelled) {
           landmarkerRef.current = hl;
           setIsLoading(false);

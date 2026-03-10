@@ -19,18 +19,20 @@ export interface RawLandmark {
 
 /**
  * Convert MediaPipe NormalizedLandmark[] (21 points) to a flat 63-element
- * array, then subtract the wrist position to centre the hand.
+ * array of raw [0,1]-normalised coordinates as expected by the trained models.
+ *
+ * The XGBoost, Autoencoder+LGBM models were trained directly on the raw
+ * MediaPipe landmark coordinates (x, y, z per landmark, no wrist-centering).
+ * Sending wrist-subtracted coords produces incorrect predictions.
  */
 export function normaliseLandmarks(raw: RawLandmark[]): number[] {
   if (raw.length !== 21) {
     throw new Error(`Expected 21 landmarks, got ${raw.length}`);
   }
 
-  const wrist = raw[0];
-
   const flat: number[] = [];
   for (const lm of raw) {
-    flat.push(lm.x - wrist.x, lm.y - wrist.y, lm.z - wrist.z);
+    flat.push(lm.x, lm.y, lm.z);
   }
   return flat; // length 63
 }

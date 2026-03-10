@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cpu, Zap, Clock } from 'lucide-react';
-import type { PredictionResponse } from '../types';
+import type { ModelMode, PredictionResponse } from '../types';
 
 interface Props {
   prediction: PredictionResponse | null;
   isConnected: boolean;
   latency: number;
   lowBandwidth?: boolean;
+  selectedModel: ModelMode;
 }
 
 const PIPELINE_COLORS: Record<string, string> = {
@@ -21,6 +22,7 @@ const PIPELINE_LABELS: Record<string, string> = {
   A: 'XGBoost',
   B: 'AE + LGBM',
   C: 'CNN + SVM',
+  ensemble: 'A -> B -> C fallback',
 };
 
 function confidenceColor(c: number) {
@@ -47,7 +49,7 @@ function ConfidenceBar({ value }: { value: number }) {
  * Floating HUD panel that shows the current sign prediction, confidence,
  * active pipeline, latency and a rolling history of the last 10 signs.
  */
-export function PredictionHUD({ prediction, isConnected, latency, lowBandwidth = false }: Props) {
+export function PredictionHUD({ prediction, isConnected, latency, lowBandwidth = false, selectedModel }: Props) {
   const [history, setHistory] = useState<PredictionResponse[]>([]);
   const prevSignRef = useRef<string | null>(null);
 
@@ -62,9 +64,10 @@ export function PredictionHUD({ prediction, isConnected, latency, lowBandwidth =
   const pipelineKey = prediction?.pipeline ?? 'A';
   const pipelineColor = PIPELINE_COLORS[pipelineKey] ?? 'text-slate-400';
   const pipelineLabel = PIPELINE_LABELS[pipelineKey] ?? pipelineKey;
+  const selectedLabel = PIPELINE_LABELS[selectedModel] ?? selectedModel;
 
   return (
-    <div className="glass glow-border flex flex-col gap-4 p-5 min-w-[260px] max-w-xs w-full">
+    <div className="glass glow-border flex flex-col gap-3 sm:gap-4 p-3 sm:p-5 w-full lg:min-w-[260px] lg:max-w-xs">
       {/* Connection status */}
       <div className="flex items-center justify-between text-xs text-slate-400">
         <span className="flex items-center gap-1.5">
@@ -90,90 +93,99 @@ export function PredictionHUD({ prediction, isConnected, latency, lowBandwidth =
         </span>
       </div>
 
-      {/* Main sign display */}
-      <div className="flex flex-col items-center gap-1 py-2">
-        <AnimatePresence mode="popLayout">
-          {prediction ? (
-            <motion.div
-              key={prediction.sign}
-              initial={{ opacity: 0, scale: 0.6, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.4, y: -10 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="glow-text text-7xl font-bold select-none"
-              style={{ color: '#00f5d4' }}
-            >
-              {prediction.sign}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="placeholder"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              exit={{ opacity: 0 }}
-              className="text-5xl font-bold text-slate-500 select-none"
-            >
-              ?
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Confidence bar */}
-        {prediction && (
-          <div className="w-full px-2 mt-1">
-            <div className="flex justify-between text-xs text-slate-400 mb-1">
-              <span>Confidence</span>
-              <span style={{ color: confidenceColor(prediction.confidence) }}>
-                {Math.round(prediction.confidence * 100)}%
-              </span>
-            </div>
-            <ConfidenceBar value={prediction.confidence} />
-          </div>
-        )}
-      </div>
-
-      {/* Pipeline badge */}
-      {prediction && (
-        <div className="flex items-center gap-1.5 text-xs">
-          <Cpu size={12} className={pipelineColor} />
-          <span className={pipelineColor}>Pipeline {pipelineKey}</span>
-          <span className="text-slate-500">·</span>
-          <span className="text-slate-400">{pipelineLabel}</span>
-        </div>
-      )}
-
-      {/* Divider */}
-      <div className="border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }} />
-
-      {/* History */}
-      <div className="flex flex-col gap-1">
-        <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
-          <Zap size={11} /> Recent signs
-        </p>
-        <div className="flex flex-wrap gap-1.5">
-          <AnimatePresence>
-            {history.map((h, i) => (
-              <motion.span
-                key={`${h.sign}-${i}`}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1 - i * 0.08, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.3 }}
-                transition={{ duration: 0.2 }}
-                className="px-2 py-0.5 rounded-full text-sm font-semibold"
-                style={{
-                  background: 'rgba(0,245,212,0.08)',
-                  border: '1px solid rgba(0,245,212,0.2)',
-                  color: '#00f5d4',
-                  fontSize: i === 0 ? '1.1rem' : '0.85rem',
-                }}
+      {/* Main content: sign + history side by side on mobile, stacked on lg */}
+      <div className="flex lg:flex-col gap-3">
+        {/* Main sign display */}
+        <div className="flex flex-col items-center justify-center gap-1 py-1 sm:py-2 min-w-[80px] sm:min-w-0">
+          <AnimatePresence mode="popLayout">
+            {prediction ? (
+              <motion.div
+                key={prediction.sign}
+                initial={{ opacity: 0, scale: 0.6, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.4, y: -10 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                className="glow-text font-bold select-none leading-none"
+                style={{ color: '#00f5d4', fontSize: 'clamp(2.5rem, 10vw, 4.5rem)' }}
               >
-                {h.sign}
-              </motion.span>
-            ))}
+                {prediction.sign}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="placeholder"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.3 }}
+                exit={{ opacity: 0 }}
+                className="font-bold text-slate-500 select-none leading-none"
+                style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)' }}
+              >
+                ?
+              </motion.div>
+            )}
           </AnimatePresence>
-          {history.length === 0 && (
-            <span className="text-xs text-slate-600 italic">None yet</span>
+          <span className="text-[10px] text-slate-500 mt-0.5">Current sign</span>
+        </div>
+
+        {/* Right column on mobile: confidence + pipeline + history */}
+        <div className="flex flex-1 flex-col gap-2 justify-center">
+          {/* Confidence bar */}
+          {prediction && (
+            <div className="w-full">
+              <div className="flex justify-between text-xs text-slate-400 mb-1">
+                <span>Confidence</span>
+                <span style={{ color: confidenceColor(prediction.confidence) }}>
+                  {Math.round(prediction.confidence * 100)}%
+                </span>
+              </div>
+              <ConfidenceBar value={prediction.confidence} />
+            </div>
           )}
+
+          {/* Pipeline badge */}
+          {prediction && (
+            <div className="flex items-center gap-1.5 text-xs">
+              <Cpu size={12} className={pipelineColor} />
+              <span className={pipelineColor}>Pipeline {pipelineKey}</span>
+              <span className="text-slate-500">·</span>
+              <span className="text-slate-400">{pipelineLabel}</span>
+            </div>
+          )}
+
+          <div className="text-xs text-slate-500">
+            Selected mode: <span className="text-slate-300">{selectedModel} ({selectedLabel})</span>
+          </div>
+
+          {/* History */}
+          <div>
+            <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+              <Zap size={11} /> Recent signs
+            </p>
+            <div className="flex flex-wrap gap-1">
+              <AnimatePresence>
+                {history.map((h, i) => (
+                  <motion.span
+                    key={`${h.sign}-${i}`}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1 - i * 0.08, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.3 }}
+                    transition={{ duration: 0.2 }}
+                    className="px-1.5 py-0.5 rounded-full font-semibold"
+                    style={{
+                      background: 'rgba(0,245,212,0.08)',
+                      border: '1px solid rgba(0,245,212,0.2)',
+                      color: '#00f5d4',
+                      fontSize: i === 0 ? '1rem' : '0.75rem',
+                    }}
+                  >
+                    {h.sign}
+                  </motion.span>
+                ))}
+              </AnimatePresence>
+              {history.length === 0 && (
+                <span className="text-xs text-slate-600 italic">None yet</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

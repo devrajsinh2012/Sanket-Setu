@@ -49,7 +49,7 @@ export function WebcamFeed({
       ref={containerRef}
       className="relative rounded-2xl overflow-hidden w-full max-w-2xl"
       style={{
-        aspectRatio: '16/9',
+        aspectRatio: window.innerWidth < 640 ? '4/3' : '16/9',
         border: '1px solid rgba(0,245,212,0.2)',
         boxShadow: '0 0 30px rgba(0,245,212,0.08)',
         background: '#0a0a1a',

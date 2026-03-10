@@ -24,11 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent  # repo root
 WEIGHTS_DIR = os.getenv("WEIGHTS_DIR", str(BASE_DIR))
 
 # Individual model paths (relative to repo root)
-PIPELINE_A_MODEL   = os.path.join(WEIGHTS_DIR, "Mediapipe_XGBoost",       "model.pkl")
-PIPELINE_B_AE      = os.path.join(WEIGHTS_DIR, "CNN_Autoencoder_LightGBM", "autoencoder_model.pkl")
-PIPELINE_B_LGBM    = os.path.join(WEIGHTS_DIR, "CNN_Autoencoder_LightGBM", "lgbm_model.pkl")
-PIPELINE_C_CNN     = os.path.join(WEIGHTS_DIR, "CNN_PreTrained",            "cnn_model.pkl")
-PIPELINE_C_SVM     = os.path.join(WEIGHTS_DIR, "CNN_PreTrained",            "svm_model.pkl")
+# Note: the actual files on disk use .pth extension (identical content to .pkl)
+PIPELINE_A_MODEL   = os.path.join(WEIGHTS_DIR, "Mediapipe_XGBoost",       "model.pth")
+PIPELINE_B_AE      = os.path.join(WEIGHTS_DIR, "CNN_Autoencoder_LightGBM", "autoencoder_model.pth")
+PIPELINE_B_LGBM    = os.path.join(WEIGHTS_DIR, "CNN_Autoencoder_LightGBM", "lgbm_model.pth")
+PIPELINE_C_CNN     = os.path.join(WEIGHTS_DIR, "CNN_PreTrained",            "cnn_model.pth")
+PIPELINE_C_SVM     = os.path.join(WEIGHTS_DIR, "CNN_PreTrained",            "svm_model.pth")
 
 # ---------------------------------------------------------------------------
 # Inference thresholds

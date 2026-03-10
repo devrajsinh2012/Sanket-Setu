@@ -3,7 +3,7 @@ Pydantic request / response schemas for SanketSetu backend.
 """
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -20,6 +20,14 @@ class LandmarkMessage(BaseModel):
     """
     landmarks: List[float] = Field(..., min_length=63, max_length=63)
     session_id: str = Field(default="default")
+    model_mode: Optional[Literal["A", "B", "C", "ensemble"]] = Field(
+        default=None,
+        description="Optional per-request model mode override",
+    )
+    image_b64: Optional[str] = Field(
+        default=None,
+        description="Optional base-64 hand image used when model_mode='C' or ensemble needs C fallback",
+    )
 
     @field_validator("landmarks")
     @classmethod
@@ -45,6 +53,7 @@ class EnsembleMessage(BaseModel):
     landmarks: List[float] = Field(..., min_length=63, max_length=63)
     image_b64: Optional[str] = Field(default=None)
     session_id: str = Field(default="default")
+    model_mode: Optional[Literal["A", "B", "C", "ensemble"]] = Field(default=None)
 
 
 # ---------------------------------------------------------------------------

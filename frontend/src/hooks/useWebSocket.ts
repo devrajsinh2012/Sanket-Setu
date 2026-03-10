@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import type { PredictionResponse } from '../types';
+import type { ModelMode, PredictionResponse } from '../types';
 
-// Derive WebSocket base URL from the current page origin so the hook works
-// on any deployment (HF Space, Vercel + backend, localhost) without extra config.
+// Derive WebSocket base URL.
+// Priority: VITE_WS_URL env var → dev fallback (port 8000) → same host (production).
 function _defaultWsUrl(): string {
   if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL as string;
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  // In Vite dev mode the frontend is served on 5173 but FastAPI runs on 8000.
+  if (import.meta.env.DEV) return `${proto}://localhost:8000`;
+  // In production the backend is co-located (HF Spaces Docker).
   return `${proto}://${window.location.host}`;
 }
 const WS_URL = _defaultWsUrl();
@@ -20,7 +23,14 @@ export interface WebSocketState {
   isConnected: boolean;
   latency: number;
   lowBandwidth: boolean;
-  sendLandmarks: (landmarks: number[], sessionId?: string) => void;
+  sendLandmarks: (
+    landmarks: number[],
+    options?: {
+      sessionId?: string;
+      modelMode?: ModelMode;
+      imageB64?: string;
+    },
+  ) => void;
 }
 
 /**
@@ -92,7 +102,14 @@ export function useWebSocket(): WebSocketState {
   }, [connect]);
 
   /** Throttled send — adapts to 5fps in low-bandwidth mode (latency > 500ms) */
-  const sendLandmarks = useCallback((landmarks: number[], sessionId = 'browser') => {
+  const sendLandmarks = useCallback((
+    landmarks: number[],
+    options?: {
+      sessionId?: string;
+      modelMode?: ModelMode;
+      imageB64?: string;
+    },
+  ) => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
@@ -103,7 +120,12 @@ export function useWebSocket(): WebSocketState {
     lastSendTime.current = now;
 
     inflightTs.current = now;
-    ws.send(JSON.stringify({ landmarks, session_id: sessionId }));
+    ws.send(JSON.stringify({
+      landmarks,
+      session_id: options?.sessionId ?? 'browser',
+      model_mode: options?.modelMode,
+      image_b64: options?.imageB64,
+    }));
   }, [lowBandwidth]);
 
   return { lastPrediction, isConnected, latency, lowBandwidth, sendLandmarks };

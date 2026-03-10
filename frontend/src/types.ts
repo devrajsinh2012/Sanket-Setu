@@ -2,10 +2,12 @@
  * Shared TypeScript types for SanketSetu frontend.
  */
 
+export type ModelMode = 'A' | 'B' | 'C' | 'ensemble'
+
 export interface PredictionResponse {
   sign: string;
   confidence: number;
-  pipeline: string;
+  pipeline: ModelMode | `${'A' | 'B' | 'C'}+${string}`;
   label_index: number;
   probabilities?: number[];
   latency_ms?: number;

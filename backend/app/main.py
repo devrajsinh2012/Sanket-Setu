@@ -118,8 +118,10 @@ async def global_exception_handler(request: Request, exc: Exception):
 def _run_ensemble(
     landmarks: list[float],
     image_b64: str | None = None,
+    model_mode: str | None = None,
 ) -> PredictionResponse:
     store = get_model_store()
+    effective_mode = _resolve_pipeline_mode(model_mode)
     result = ensemble.run(
         landmarks,
         image_input=image_b64,
@@ -128,7 +130,7 @@ def _run_ensemble(
         lgbm_model=store.lgbm_model,
         cnn_model=store.cnn_model,
         svm_model=store.svm_model,
-        pipeline_mode=config.PIPELINE_MODE,
+        pipeline_mode=effective_mode,
         confidence_threshold=config.CONFIDENCE_THRESHOLD,
         secondary_threshold=config.SECONDARY_THRESHOLD,
     )
@@ -155,6 +157,30 @@ def _available_pipelines() -> list[str]:
     if store.cnn_model is not None and store.svm_model is not None:
         pipelines.append("C")
     return pipelines
+
+
+def _resolve_pipeline_mode(requested_mode: str | None) -> str:
+    """
+    Resolve a per-request pipeline mode safely.
+    Falls back to configured default when requested mode is unavailable.
+    """
+    default_mode = config.PIPELINE_MODE
+    if requested_mode is None:
+        return default_mode
+
+    available = set(_available_pipelines())
+    if requested_mode == "ensemble":
+        return "ensemble"
+    if requested_mode in available:
+        return requested_mode
+
+    logger.warning(
+        "Requested mode '%s' is unavailable. Falling back to '%s'. Available: %s",
+        requested_mode,
+        default_mode,
+        sorted(available),
+    )
+    return default_mode
 
 
 # ---------------------------------------------------------------------------
@@ -190,7 +216,11 @@ async def health():
 @app.post("/api/predict", response_model=PredictionResponse)
 async def predict_landmarks(body: LandmarkMessage):
     """REST fallback: send 63 landmark floats, receive prediction."""
-    return _run_ensemble(body.landmarks)
+    return _run_ensemble(
+        body.landmarks,
+        image_b64=body.image_b64,
+        model_mode=body.model_mode,
+    )
 
 
 @app.post("/api/predict/image", response_model=PredictionResponse)
@@ -232,7 +262,11 @@ async def ws_landmarks(ws: WebSocket):
                 msg  = LandmarkMessage(**data)
                 session_id = msg.session_id
 
-                response = _run_ensemble(msg.landmarks)
+                response = _run_ensemble(
+                    msg.landmarks,
+                    image_b64=msg.image_b64,
+                    model_mode=msg.model_mode,
+                )
                 await ws.send_text(response.model_dump_json())
 
             except ValueError as ve:
